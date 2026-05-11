@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CosechaWebb - Registro de Pesaje</title>
+    
+    <style>
+        :root {
+            --verde-primario: #27ae60;
+            --azul-oscuro: #2c3e50;
+            --texto-suave: #7f8c8d;
+            --blanco-glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(-45deg, #f4f7f6, #eef5f3, #f9fbf9, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientSuave 20s ease infinite;
+            display: flex; min-height: 100vh;
+        }
+
+        @keyframes gradientSuave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        .sidebar {
+            width: 250px; background-color: var(--azul-oscuro); color: white;
+            display: flex; flex-direction: column; padding: 20px;
+            position: fixed; height: 100%; z-index: 100;
+        }
+
+        .logo-container {
+            text-align: center; padding: 20px; background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-container img { width: 70px; }
+        .logo-container p { font-size: 11px; color: #2ecc71; font-weight: bold; margin-top: 10px; letter-spacing: 2px; }
+
+        .nav-link {
+            color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 15px;
+            border-radius: 8px; transition: 0.3s; display: flex; align-items: center; gap: 12px;
+            margin-bottom: 5px;
+        }
+
+        .nav-link:hover { background: var(--verde-primario); color: white; transform: translateX(5px); }
+        .active { background: var(--verde-primario); color: white; }
+
+
+        .main-content { margin-left: 290px; padding: 40px; width: calc(100% - 290px); }
+
+        .form-card {
+            background: var(--blanco-glass); backdrop-filter: blur(10px);
+            padding: 30px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--verde-primario); max-width: 900px;
+        }
+
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; font-weight: bold; color: var(--azul-oscuro); margin-bottom: 8px; }
+        
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; outline: none; transition: 0.3s; box-sizing: border-box;
+        }
+
+        .input-group input:focus, .input-group select:focus { border-color: var(--verde-primario); }
+
+        .btn-registrar {
+            background: var(--verde-primario); color: white; border: none;
+            padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: 0.3s; width: 100%; margin-top: 10px;
+        }
+
+        .btn-registrar:hover { background: #219150; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
+
+   
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+
+        .recent-list { margin-top: 40px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; border-bottom: 2px solid #f4f7f6; color: var(--texto-suave); font-size: 12px; }
+        td { padding: 12px; border-bottom: 1px solid #f4f7f6; font-size: 14px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="{% static 'gestion_cosechas/img/logo.png' %}" alt="Logo">
+            <p>SISTEMA COSECHAWEBB</p>
+        </div>
+        <nav>
+            <a href="/" class="nav-link">🏠 Inicio</a>
+            <a href="/personal/supervisor/" class="nav-link">👔 Supervisores</a>
+            <a href="/personal/cosechero/" class="nav-link">👨‍🌾 Cosecheros</a>
+            <a href="/fundos/" class="nav-link">📍 Fundos</a>
+            <a href="/formulario/" class="nav-link active">🚜 Registro Kilos</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h2 style="color: var(--azul-oscuro); margin: 0;">🚜 Registro de Pesaje en Terreno</h2>
+            <p style="color: var(--texto-suave); margin: 5px 0 25px 0;">Captura de datos en tiempo real para control de producción.</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-card">
+            <form action="/formulario/" method="POST">
+                {% csrf_token %}
+                <div class="grid-inputs">
+                    <div class="input-group">
+                        <label>Seleccionar Fundo</label>
+                        <select name="fundo" required>
+                            <option value="">-- Elija Fundo --</option>
+                            {% for f in fundos %}
+                                <option value="{{ f.id }}">{{ f.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Supervisor Responsable</label>
+                        <select name="supervisor" required>
+                            <option value="">-- Elija Supervisor --</option>
+                            {% for s in supervisores %}
+                                <option value="{{ s.id }}">{{ s.nombre }} {{ s.apellido }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Variedad de Fruta</label>
+                        <select name="variedad" required>
+                            <option value="Arándano Legacy">Arándano Legacy</option>
+                            <option value="Cereza Bing">Cereza Bing</option>
+                            <option value="Manzana Pink Lady">Manzana Pink Lady</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Cosechero (Trabajador)</label>
+                        <select name="cosechero" required>
+                            <option value="">-- Elija Trabajador --</option>
+                            {% for c in cosecheros %}
+                                <option value="{{ c.id }}">{{ c.nombre }} {{ c.apellido }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Kilos Netos</label>
+                        <input type="number" step="0.01" name="kilos" placeholder="0.00" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-registrar">Confirmar y Guardar Pesaje</button>
+            </form>
+        </div>
+
+        <div class="recent-list">
+            <h3 style="color: var(--azul-oscuro); margin-top: 0;">  Pesajes del Día {{ "now"|date:"d/m/Y" }}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Cosechero</th>
+                        <th>Fundo</th>
+                        <th style="text-align: right;">Kilos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pesajes_hoy %}
+                    <tr>
+                        <td style="color: var(--texto-suave);">{{ p.fecha|date:"H:i" }}</td>
+                        <td><strong>{{ p.nombre }}</strong></td>
+                        <td>{{ p.fundo }}</td>
+                        <td style="text-align: right; color: var(--verde-primario); font-weight: bold;">{{ p.kilos }} kg</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px; color: var(--texto-suave);">
+                            Aún no se han registrado pesajes hoy.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
