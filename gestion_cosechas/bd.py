@@ -1,34 +1,26 @@
-from django.conf import settings
+# En gestion_cosechas/bd.py
 import pymysql
+from django.conf import settings
 
 class conexionBD:
-    def conectar(self):
-        return pymysql.connect(
-            host=settings.DB_CONFIG['HOST'],
-            user=settings.DB_CONFIG['USER'],
-            password=settings.DB_CONFIG['PASSWORD'],
-            database=settings.DB_CONFIG['NAME'],
-            port=settings.DB_CONFIG['PORT'],
-            charset='utf8',
+    def __init__(self):
+        # Toma los datos directamente del settings oficial
+        db_data = settings.DATABASES['default']
+        self.conexion = pymysql.connect(
+            host=db_data['HOST'],
+            user=db_data['USER'],
+            password=db_data['PASSWORD'],
+            database=db_data['NAME'],
+            port=int(db_data['PORT']),
             cursorclass=pymysql.cursors.DictCursor
         )
 
+    def consulta(self, sql, params=None):
+        with self.conexion.cursor() as cursor:
+            cursor.execute(sql, params)
+            return cursor.fetchall()
 
     def ejecutarSQL(self, sql, params=None):
-        conexion = self.conectar()
-        try:
-            with conexion.cursor() as cursor:
-                cursor.execute(sql, params)
-                conexion.commit()
-        finally:
-            conexion.close()
-
-
-    def consulta(self, sql, params=None):
-        conexion = self.conectar()
-        try:
-            with conexion.cursor() as cursor:
-                cursor.execute(sql, params)
-                return cursor.fetchall()
-        finally:
-            conexion.close()
+        with self.conexion.cursor() as cursor:
+            cursor.execute(sql, params)
+            self.conexion.commit()
