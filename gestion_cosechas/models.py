@@ -1,18 +1,10 @@
 from django.db import models
 
-class Administrador(models.Model):
-    correo = models.EmailField(max_length=100, unique=True)
-    contrasena = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.correo
-
 class Fundo(models.Model):
     nombre = models.CharField(max_length=100)
     ubicacion = models.CharField(max_length=200, null=True, blank=True)
-
-    def __str__(self):
-        return self.nombre
+    class Meta:
+        db_table = 'fundos' 
 
 class Cosechero(models.Model):
     nombre = models.CharField(max_length=100)
@@ -21,9 +13,8 @@ class Cosechero(models.Model):
     nacionalidad = models.CharField(max_length=50, null=True, blank=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
     cuadrilla = models.CharField(max_length=50, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+    class Meta:
+        db_table = 'cosecheros'
 
 class Supervisor(models.Model):
     nombre = models.CharField(max_length=100)
@@ -33,9 +24,8 @@ class Supervisor(models.Model):
     telefono = models.CharField(max_length=15, null=True, blank=True)
     contrasena = models.CharField(max_length=255)
     fundo = models.ForeignKey(Fundo, on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+    class Meta:
+        db_table = 'supervisores'
 
 class RegistroKilo(models.Model):
     fundo = models.ForeignKey(Fundo, on_delete=models.CASCADE)
@@ -44,6 +34,5 @@ class RegistroKilo(models.Model):
     variedad = models.CharField(max_length=50)
     kilos = models.DecimalField(max_digits=7, decimal_places=2)
     fecha = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.kilos}kg - {self.cosechero.nombre} ({self.fecha.strftime('%d/%m/%Y')})"
+    class Meta:
+        db_table = 'registro_kilos'
