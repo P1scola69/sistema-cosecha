@@ -75,16 +75,17 @@ WSGI_APPLICATION = 'sistema_cosecha.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME', 'cosecha_db'),
-            'USER': os.environ.get('DB_USER', 'root'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-            'HOST': os.environ.get('DB_HOST', 'localhost'),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cosecha_db',
+        'USER': 'admin',
+        'PASSWORD': 'Cosecha2026-',
+        'HOST': 'cosecha-db.cxuq2y0qed2z.us-east-1.rds.amazonaws.com',
+        'PORT': '3306',
     }
+}
 
 DB_CONFIG = {
     'HOST': 'localhost',
